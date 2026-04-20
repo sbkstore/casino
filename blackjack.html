@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Stuntfly | Blackjack Pro</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-black: #000000;
+            --apple-dark: #1c1c1e;
+            --apple-gray: #2c2c2e;
+            --accent-blue: #0A84FF;
+            --accent-green: #34C759;
+            --text-main: #FFFFFF;
+            --text-secondary: #8E8E93;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-black);
+            color: var(--text-main);
+            margin: 0;
+            padding-bottom: 110px;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .brand { font-weight: 700; font-size: 1.2rem; letter-spacing: -0.5px; }
+
+        .balance-box {
+            background: var(--apple-dark); padding: 6px 14px; border-radius: 12px;
+            font-size: 0.9rem; border: 1px solid var(--apple-gray); font-weight: 700;
+        }
+
+        .game-content { padding: 20px; animation: fadeIn 0.3s ease; }
+
+        .table-card {
+            background: var(--apple-dark); border-radius: 28px; padding: 25px 15px;
+            border: 1px solid var(--apple-gray); margin-bottom: 20px;
+            min-height: 420px; display: flex; flex-direction: column; justify-content: space-between;
+        }
+
+        .hand-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; text-align: center; margin-bottom: 12px; font-weight: 800; letter-spacing: 1px; }
+        .score-badge { background: var(--accent-blue); color: white; padding: 2px 10px; border-radius: 20px; font-weight: 800; font-size: 0.8rem; margin-left: 5px; }
+        
+        .hand-display { display: flex; justify-content: center; min-height: 110px; padding: 10px 0; }
+
+        .playing-card {
+            width: 80px; height: 110px; background: white; color: black; border-radius: 12px;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 8px; font-weight: 800; font-size: 1.2rem; box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+            margin: 0 -12px; position: relative; animation: cardIn 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid #ddd;
+        }
+        .playing-card.red { color: #FF3B30; }
+        .playing-card.back { 
+            background: linear-gradient(135deg, var(--accent-blue), #0040FF); 
+            border: 4px solid white; color: transparent; 
+        }
+        .card-suit-center { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.2rem; opacity: 0.15; }
+
+        @keyframes cardIn { from { transform: translateY(-30px) rotate(-5deg); opacity: 0; } to { transform: translateY(0) rotate(0); opacity: 1; } }
+
+        .bet-panel { background: var(--apple-dark); border-radius: 24px; padding: 20px; border: 1px solid var(--apple-gray); }
+        .main-btn { width: 100%; padding: 16px; border-radius: 16px; border: none; font-weight: 800; text-transform: uppercase; margin-bottom: 10px; transition: 0.2s; }
+        .btn-blue { background: var(--accent-blue); color: white; }
+        .btn-green { background: var(--accent-green); color: black; }
+        .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+        .input-group-custom {
+            background: var(--bg-black); border: 1px solid var(--apple-gray); border-radius: 16px; display: flex; margin-bottom: 15px; padding: 5px;
+        }
+        .input-group-custom input { background: transparent; border: none; color: white; padding: 10px; width: 100%; text-align: center; outline: none; font-weight: 700; }
+        .btn-adj { background: var(--apple-gray); border: none; color: white; padding: 0 15px; border-radius: 12px; font-weight: 700; }
+
+        /* TAB BAR */
+        .tab-bar {
+            position: fixed; bottom: 0; width: 100%; background: rgba(28, 28, 30, 0.85);
+            backdrop-filter: blur(30px); display: flex; justify-content: space-around;
+            padding: 10px 0 30px 0; border-top: 0.5px solid rgba(255,255,255,0.1); z-index: 2000;
+        }
+        .tab-item { color: var(--text-secondary); text-decoration: none; text-align: center; font-size: 0.65rem; flex: 1; font-weight: 500; cursor: pointer; }
+        .tab-item i { font-size: 1.5rem; display: block; margin-bottom: 2px; }
+        .tab-item.active { color: var(--accent-blue); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand fw-bold">Stuntfly</div>
+        <div class="balance-box">
+            <span style="color: #34C759; margin-right: 4px;">$</span><span id="bal-display">0.00</span>
+        </div>
+    </header>
+
+    <div class="game-content">
+        <h1 style="font-weight: 800; font-size: 1.8rem; margin-bottom: 20px;">Blackjack</h1>
+        
+        <div class="table-card">
+            <div>
+                <div class="hand-label">CRUPIER <span id="d-score-ui" class="score-badge">?</span></div>
+                <div id="dealer-hand" class="hand-display"></div>
+            </div>
+            
+            <div id="status-text" class="text-center fw-bold py-2" style="font-size: 1.1rem; letter-spacing: 1px;"></div>
+
+            <div id="player-area">
+                <div class="hand-label">TU MANO <span id="p-score-ui" class="score-badge">0</span></div>
+                <div id="player-hand" class="hand-display"></div>
+            </div>
+        </div>
+
+        <div class="bet-panel">
+            <div id="action-area">
+                <button class="main-btn btn-blue" onclick="startGame()">APOSTAR</button>
+            </div>
+            
+            <div class="input-group-custom">
+                <input type="number" id="bet-input" value="100.00">
+                <button class="btn-adj" onclick="modify(0.5)">½</button>
+                <button class="btn-adj" onclick="modify(2)">2x</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="tab-bar">
+        <div class="tab-item active" onclick="irA('games')"><i class="bi bi-grid-fill"></i>Juegos</div>
+        <div class="tab-item" onclick="irA('wallet')"><i class="bi bi-wallet2"></i>Cartera</div>
+        <div class="tab-item" onclick="irA('profile')"><i class="bi bi-person-circle"></i>Perfil</div>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD40SqIpz4EFvTlHlbs4Amm9H4I2NKqgDE",
+            authDomain: "login-c4685.firebaseapp.com",
+            projectId: "login-c4685",
+            databaseURL: "https://login-c4685-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const session = JSON.parse(localStorage.getItem('stuntfly_session'));
+        if(!session) window.location.href = 'index.html';
+
+        let currentBalance = 0, isPlaying = false, deck = [], dHand = [], pHand = [], currentBet = 0;
+
+        onValue(ref(db, `usuarios/${session.uid}/balance`), (s) => {
+            currentBalance = s.val() || 0;
+            document.getElementById('bal-display').innerText = currentBalance.toFixed(2);
+        });
+
+        function createDeck() {
+            const s = ['♠','♣','♥','♦'], v = ['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+            deck = [];
+            for(let x of s) for(let y of v) deck.push({v:y, s:x});
+            deck.sort(() => Math.random() - 0.5);
+        }
+
+        function getVal(cards) {
+            let sum = 0, aces = 0;
+            for(let c of cards) {
+                if(c.v === 'A') aces++;
+                else if(['J','Q','K'].includes(c.v)) sum += 10;
+                else sum += parseInt(c.v);
+            }
+            for(let i=0; i<aces; i++) sum += (sum + 11 <= 21) ? 11 : 1;
+            return sum;
+        }
+
+        function renderCard(card, target, isBack = false) {
+            const isRed = card.s === '♥' || card.s === '♦';
+            const div = document.createElement('div');
+            div.className = `playing-card ${isBack ? 'back' : ''} ${isRed ? 'red' : ''}`;
+            if(!isBack) {
+                div.innerHTML = `<div>${card.v}</div><div class="card-suit-center">${card.s}</div><div style="align-self:flex-end; transform: rotate(180deg)">${card.v}</div>`;
+            }
+            document.getElementById(target).appendChild(div);
+            return div;
+        }
+
+        window.startGame = async function() {
+            currentBet = parseFloat(document.getElementById('bet-input').value);
+            if(currentBet > currentBalance || currentBet <= 0) return alert("Saldo insuficiente");
+
+            isPlaying = true;
+            pHand = []; dHand = [];
+            document.getElementById('player-hand').innerHTML = '';
+            document.getElementById('dealer-hand').innerHTML = '';
+            document.getElementById('status-text').innerText = "ESPERANDO...";
+            document.getElementById('d-score-ui').innerText = "?";
+
+            await update(ref(db, `usuarios/${session.uid}`), { balance: currentBalance - currentBet });
+            
+            createDeck();
+            dHand = [deck.pop(), deck.pop()];
+            pHand = [deck.pop(), deck.pop()];
+
+            renderCard(dHand[0], 'dealer-hand');
+            renderCard(dHand[1], 'dealer-hand', true);
+            renderCard(pHand[0], 'player-hand');
+            renderCard(pHand[1], 'player-hand');
+
+            document.getElementById('p-score-ui').innerText = getVal(pHand);
+
+            if(getVal(pHand) === 21) setTimeout(() => window.stand(), 800);
+            else updateControls();
+        }
+
+        window.hit = function() {
+            pHand.push(deck.pop());
+            renderCard(pHand[pHand.length-1], 'player-hand');
+            const s = getVal(pHand);
+            document.getElementById('p-score-ui').innerText = s;
+            if(s > 21) window.endGame('TE PASASTE (PIERDES)');
+            else if(s === 21) window.stand();
+        }
+
+        window.stand = async function() {
+            isPlaying = false;
+            document.getElementById('action-area').innerHTML = '';
+
+            const dHandDiv = document.getElementById('dealer-hand');
+            const hiddenCard = dHandDiv.lastChild;
+            hiddenCard.classList.remove('back');
+            hiddenCard.innerHTML = `<div>${dHand[1].v}</div><div class="card-suit-center">${dHand[1].s}</div><div style="align-self:flex-end; transform: rotate(180deg)">${dHand[1].v}</div>`;
+            if(dHand[1].s === '♥' || dHand[1].s === '♦') hiddenCard.classList.add('red');
+            
+            document.getElementById('d-score-ui').innerText = getVal(dHand);
+
+            const drawMore = async () => {
+                if (getVal(dHand) < 17) {
+                    await new Promise(r => setTimeout(r, 800));
+                    const c = deck.pop();
+                    dHand.push(c);
+                    renderCard(c, 'dealer-hand');
+                    document.getElementById('d-score-ui').innerText = getVal(dHand);
+                    await drawMore();
+                } else {
+                    processWinner();
+                }
+            };
+            await drawMore();
+        }
+
+        async function processWinner() {
+            const pS = getVal(pHand), dS = getVal(dHand);
+            let msg = '';
+            if(dS > 21 || pS > dS) {
+                const mult = (pS === 21 && pHand.length === 2) ? 2.5 : 2;
+                await update(ref(db, `usuarios/${session.uid}`), { balance: currentBalance + (currentBet * mult) });
+                msg = (pS === 21 && pHand.length === 2) ? 'BLACKJACK! 🔥' : '¡GANASTE!';
+            } else if(pS === dS) {
+                await update(ref(db, `usuarios/${session.uid}`), { balance: currentBalance + currentBet });
+                msg = 'EMPATE';
+            } else {
+                msg = 'PIERDE LA MANO';
+            }
+            window.endGame(msg);
+        }
+
+        window.endGame = (msg) => {
+            const st = document.getElementById('status-text');
+            st.innerText = msg;
+            st.style.color = msg.includes('GAN') || msg.includes('BLACK') ? 'var(--accent-green)' : '#FF3B30';
+            document.getElementById('action-area').innerHTML = `<button class="main-btn btn-blue" onclick="location.reload()">NUEVA PARTIDA</button>`;
+        }
+
+        function updateControls() {
+            document.getElementById('action-area').innerHTML = `
+                <div class="btn-row">
+                    <button class="main-btn btn-blue" onclick="hit()">PEDIR</button>
+                    <button class="main-btn btn-green" onclick="stand()">PLANTAR</button>
+                </div>`;
+        }
+
+        window.modify = (f) => { if(!isPlaying) { let i = document.getElementById('bet-input'); i.value = (parseFloat(i.value) * f).toFixed(2); } };
+        
+        // FUNCIÓN DE NAVEGACIÓN
+        window.irA = (sec) => { window.location.href = `index.html?section=${sec}`; };
+    </script>
+</body>
+</html>

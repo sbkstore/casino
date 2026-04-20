@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Stuntfly | Mines Elite</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-black: #000000;
+            --apple-dark: #1c1c1e;
+            --apple-gray: #2c2c2e;
+            --tile-bg: #213343;
+            --tile-shadow: #1a2936;
+            --accent-blue: #0A84FF;
+            --accent-green: #34C759;
+            --accent-red: #FF3B30;
+            --text-main: #FFFFFF;
+            --text-secondary: #8E8E93;
+        }
+
+        * { box-sizing: border-box; }
+
+        html, body {
+            background-color: var(--bg-black);
+            color: var(--text-main);
+            margin: 0; padding: 0;
+            width: 100%; min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            padding: 15px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 0.5px solid var(--apple-gray);
+        }
+        .brand { font-weight: 800; font-size: 1.1rem; letter-spacing: -0.5px; }
+        .balance-box {
+            background: var(--apple-dark); padding: 6px 14px; border-radius: 12px;
+            font-size: 0.9rem; border: 1px solid var(--apple-gray); font-weight: 700;
+        }
+
+        .main-wrapper {
+            display: flex; flex-direction: column; align-items: center;
+            padding: 20px 15px 140px 15px; width: 100%;
+        }
+
+        .mines-card {
+            background-color: #0f1922;
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            margin-bottom: 25px;
+            width: 100%; max-width: 360px;
+        }
+        .mines-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .mine-tile {
+            aspect-ratio: 1 / 1; width: 100%;
+            background-color: var(--tile-bg);
+            border-radius: 8px; border: none;
+            box-shadow: 0 4px 0 var(--tile-shadow);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; transition: transform 0.05s, opacity 0.3s;
+        }
+        .mine-tile.revealed { background: #162531; box-shadow: none; transform: translateY(3px); }
+        .mine-tile.gem { color: var(--accent-green); }
+        /* Estilo de la Bomba Bootstrap */
+        .mine-tile.bomb { color: var(--accent-red); background: rgba(255, 59, 48, 0.2); }
+        .mine-tile.missed-bomb { color: rgba(255, 59, 48, 0.4); opacity: 0.7; }
+
+        .bet-panel {
+            width: 100%; max-width: 360px;
+            background: var(--apple-dark);
+            border-radius: 20px; padding: 20px;
+            border: 1px solid var(--apple-gray);
+        }
+        .input-group-custom {
+            background: var(--bg-black);
+            border: 1px solid var(--apple-gray);
+            border-radius: 14px;
+            display: flex; padding: 5px; margin-bottom: 12px;
+        }
+        .input-group-custom input, .input-group-custom select {
+            background: transparent; border: none; color: white;
+            padding: 10px; width: 100%; outline: none; font-weight: 700;
+        }
+        .btn-adj {
+            background: var(--apple-gray);
+            border: none; color: white;
+            padding: 0 15px; border-radius: 10px;
+            font-weight: 700; font-size: 0.8rem;
+            margin-left: 4px;
+        }
+
+        .btn-play {
+            width: 100%; padding: 16px; border-radius: 16px;
+            border: none; font-weight: 800; text-transform: uppercase;
+            background: var(--accent-blue); color: white;
+            box-shadow: 0 4px 15px rgba(10, 132, 255, 0.2);
+            transition: 0.2s;
+        }
+
+        #status-msg {
+            font-weight: 700; font-size: 0.9rem; text-align: center;
+            margin-bottom: 10px; height: 20px; transition: 0.3s;
+        }
+        .text-lose { color: var(--accent-red); }
+        .text-win { color: var(--accent-green); }
+
+        .tab-bar {
+            position: fixed; bottom: 0; width: 100%;
+            background: rgba(28, 28, 30, 0.85);
+            backdrop-filter: blur(30px);
+            display: flex; justify-content: space-around;
+            padding: 10px 0 30px 0;
+            border-top: 0.5px solid rgba(255,255,255,0.1);
+            z-index: 2000;
+        }
+        .tab-item { color: var(--text-secondary); text-decoration: none; text-align: center; font-size: 0.65rem; flex: 1; font-weight: 500; }
+        .tab-item i { font-size: 1.5rem; display: block; margin-bottom: 2px; }
+        .tab-item.active { color: var(--accent-blue); }
+
+        .multiplier-badge {
+            background: rgba(10, 132, 255, 0.15);
+            color: var(--accent-blue);
+            padding: 4px 12px; border-radius: 10px;
+            font-weight: 800; font-size: 0.75rem;
+        }
+          /* Estilo para que la Bomba FIABLE se vea profesional */
+        .fiable-bomb {
+            font-family: serif; /* Usamos una fuente serif para una 'X' más estilizada y mecánica */
+            font-weight: 900;
+            font-size: 2rem; /* Tamaño grande para que impacte visualmente */
+            line-height: 1;
+            display: block;
+            margin-top: -2px; /* Ajuste sutil para centrarla verticalmente */
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">Stuntfly</div>
+        <div class="balance-box">
+            <span style="color: #34C759;">$</span> <span id="bal-display">0.00</span>
+        </div>
+    </header>
+
+    <div class="main-wrapper">
+        <div id="status-msg"></div>
+
+        <div class="mines-card">
+            <div class="mines-grid" id="grid"></div>
+        </div>
+
+        <div class="bet-panel">
+            <div class="d-flex justify-content-between align-items-center mb-2 px-1">
+                <label class="small fw-bold text-secondary">APUESTA</label>
+                <div id="next-mult" class="multiplier-badge" style="display:none">x1.00</div>
+            </div>
+            <div class="input-group-custom">
+                <input type="number" id="bet-amount" value="100" inputmode="decimal">
+                <button class="btn-adj" onclick="modifyBet(0.5)">½</button>
+                <button class="btn-adj" onclick="modifyBet(2)">2x</button>
+            </div>
+            
+            <label class="small fw-bold text-secondary mb-1 px-1">MINAS</label>
+            <div class="input-group-custom">
+                <select id="mine-count">
+                    <option value="1">1 Mina</option>
+                    <option value="3" selected>3 Minas</option>
+                    <option value="5">5 Minas</option>
+                    <option value="13">13 Minas</option>
+                    <option value="24">24 Minas</option>
+                </select>
+            </div>
+            <button class="btn-play" id="btn-main" onclick="startGame()">Apostar</button>
+        </div>
+    </div>
+
+    <nav class="tab-bar">
+        <a href="index.html?section=games" class="tab-item active"><i class="bi bi-grid-fill"></i>Juegos</a>
+        <a href="index.html?section=wallet" class="tab-item"><i class="bi bi-wallet2"></i>Cartera</a>
+        <a href="index.html?section=profile" class="tab-item"><i class="bi bi-person-circle"></i>Perfil</a>
+    </nav>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyD40SqIpz4EFvTlHlbs4Amm9H4I2NKqgDE",
+            authDomain: "login-c4685.firebaseapp.com",
+            projectId: "login-c4685",
+            databaseURL: "https://login-c4685-default-rtdb.firebaseio.com/"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const session = JSON.parse(localStorage.getItem('stuntfly_session'));
+
+        let balance = 0, gameActive = false, minesLocations = [], revealedTiles = 0, currentBet = 0;
+
+        onValue(ref(db, `usuarios/${session.uid}/balance`), (s) => {
+            balance = s.val() || 0;
+            document.getElementById('bal-display').innerText = balance.toFixed(2);
+        });
+
+        // Función para duplicar/dividir apuesta
+        window.modifyBet = (factor) => {
+            if(gameActive) return;
+            const input = document.getElementById('bet-amount');
+            input.value = (parseFloat(input.value) * factor).toFixed(2);
+        };
+
+        function createGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            for(let i=0; i<25; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'mine-tile';
+                btn.dataset.index = i;
+                btn.onclick = () => revealTile(i);
+                grid.appendChild(btn);
+            }
+        }
+
+        window.startGame = async () => {
+            if(gameActive) { cashout(); return; }
+            const amt = parseFloat(document.getElementById('bet-amount').value);
+            const mCount = parseInt(document.getElementById('mine-count').value);
+            if(amt > balance || amt <= 0) return;
+
+            document.getElementById('status-msg').innerText = "";
+            currentBet = amt;
+            gameActive = true;
+            revealedTiles = 0;
+            minesLocations = [];
+
+            while(minesLocations.length < mCount) {
+                let r = Math.floor(Math.random() * 25);
+                if(!minesLocations.includes(r)) minesLocations.push(r);
+            }
+
+            await update(ref(db, `usuarios/${session.uid}`), { balance: balance - amt });
+            
+            document.getElementById('btn-main').innerText = "Cobra Ganancia";
+            document.getElementById('btn-main').style.background = "var(--accent-green)";
+            document.getElementById('next-mult').style.display = "block";
+            createGrid();
+            updateMultiplier();
+        };
+
+        function revealTile(index) {
+            if(!gameActive) return;
+            const tile = document.querySelector(`[data-index="${index}"]`);
+            if(tile.classList.contains('revealed')) return;
+
+            tile.classList.add('revealed');
+            if(minesLocations.includes(index)) {
+                gameOver(index);
+            } else {
+                revealedTiles++;
+                tile.classList.add('gem');
+                tile.innerHTML = '<i class="bi bi-gem"></i>';
+                updateMultiplier();
+            }
+        }
+
+        function calculateMultiplier(total, mines, hits) {
+            if(hits === 0) return 1;
+            let p = 1;
+            for(let i=0; i<hits; i++) {
+                p = p * (total - mines - i) / (total - i);
+            }
+            return (0.94 / p);
+        }
+
+        function updateMultiplier() {
+            const mCount = parseInt(document.getElementById('mine-count').value);
+            const mult = calculateMultiplier(25, mCount, revealedTiles);
+            document.getElementById('btn-main').innerText = `Cobrar $${(currentBet * mult).toFixed(2)}`;
+            document.getElementById('next-mult').innerText = `x${mult.toFixed(2)}`;
+        }
+
+        async function cashout() {
+            if(revealedTiles === 0) return;
+            const mCount = parseInt(document.getElementById('mine-count').value);
+            const win = currentBet * calculateMultiplier(25, mCount, revealedTiles);
+            await update(ref(db, `usuarios/${session.uid}`), { balance: balance + win });
+            
+            const msg = document.getElementById('status-msg');
+            msg.className = "text-win";
+            msg.innerText = `¡GANASTE $${win.toFixed(2)}!`;
+            resetGame();
+        }
+
+                function gameOver(clickedIndex) {
+            gameActive = false;
+            
+            // Forzamos el revelado de las 25 casillas sin excepción
+            for (let i = 0; i < 25; i++) {
+                const t = document.querySelector(`[data-index="${i}"]`);
+                
+                // Marcamos la casilla como revelada para animarla
+                t.classList.add('revealed');
+
+                if (minesLocations.includes(i)) {
+                    // SI ES UNA BOMBA:
+                    if (i === clickedIndex) {
+                        // La que pisaste: Fondo rojo total para resaltar el error
+                        t.style.backgroundColor = "var(--accent-red)";
+                        t.style.color = "white";
+                        t.innerHTML = '<i class="bi bi-fire" style="font-size: 1.8rem;"></i>';
+                    } else {
+                        // Las otras bombas: Icono rojo fuerte sobre el fondo oscuro
+                        t.style.color = "var(--accent-red)";
+                        t.style.backgroundColor = "rgba(255, 59, 48, 0.15)"; // Un toque de rojo al fondo
+                        t.innerHTML = '<i class="bi bi-fire" style="font-size: 1.5rem;"></i>';
+                    }
+                } else {
+                    // SI ERA UNA GEMA NO TOCADA:
+                    // Si el usuario no la había abierto, la mostramos tenue
+                    if (!t.classList.contains('gem')) {
+                        t.style.opacity = "0.4";
+                        t.innerHTML = '<i class="bi bi-gem" style="font-size: 1.1rem; color: var(--accent-green);"></i>';
+                    }
+                }
+            }
+
+            const msg = document.getElementById('status-msg');
+            msg.className = "text-lose";
+            msg.innerText = "¡BOMBA DETECTADA! PERDISTE.";
+            
+            // Damos 4 segundos para que se aprecie el tablero completo antes de reiniciar
+            setTimeout(() => { resetGame(); }, 4000); 
+        }
+
+        function resetGame() {
+            gameActive = false;
+            document.getElementById('btn-main').innerText = "Apostar";
+            document.getElementById('btn-main').style.background = "var(--accent-blue)";
+            document.getElementById('next-mult').style.display = "none";
+            createGrid();
+        }
+
+        createGrid();
+    </script>
+</body>
+</html>
