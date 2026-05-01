@@ -52,8 +52,20 @@
     .hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
     .hero p { color: var(--text-muted); font-size: 0.9rem; }
 
+    /* Estilo para el mensaje profesional */
+    .info-box {
+      background: rgba(59, 130, 246, 0.1);
+      border-left: 4px solid var(--accent);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 0.85rem;
+      color: #cbd5e1;
+    }
+    .info-box strong { color: #fff; }
+
     .input-field { margin-bottom: 20px; }
-    .input-field label { display: block; font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 8px; text-transform: uppercase; }
+    .input-field label { display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; margin-bottom: 8px; text-transform: uppercase; }
     
     .input-wrapper {
         position: relative;
@@ -157,25 +169,30 @@
       <p>Licencias oficiales para servicio técnico multimarca.</p>
     </div>
 
+    <div class="info-box">
+        <strong> Instrucciones de Entrega:</strong><br>
+        Por favor, asegúrate de ingresar un correo electrónico o whatsapp válido. Una vez confirmado el pago, el <strong>enlace de descarga</strong>, tu <strong>clave de licencia</strong> y la <strong>guía de instalación paso a paso</strong> serán enviados a este medio de inmediato.
+    </div>
+
     <div class="input-field">
-      <label>Email de Activación</label>
+      <label>Email o whatsapp de Activación</label>
       <div class="input-wrapper">
-          <input type="email" id="username" placeholder="ejemplo@correo.com">
+          <input type="email" id="username" placeholder="ejemplo@correo.com o whatsapp">
       </div>
     </div>
 
     <div class="package-list">
-        <div class="pkg-item" onclick="selectPkg('Licencia Mensual', '25', this)">
+        <div class="pkg-item" onclick="selectPkg('Licencia Mensual', '22', this)">
             <span class="pkg-name">ACCESO 30 DIAS</span>
-            <span class="pkg-price">30K ARS /22 USDT</span>
+            <span class="pkg-price">30K ARS / 22 USDT</span>
         </div>
-        <div class="pkg-item" onclick="selectPkg('Licencia Anual', '150', this)">
+        <div class="pkg-item" onclick="selectPkg('Licencia Anual', '36', this)">
             <span class="pkg-name">ACCESO 1 AÑO</span>
-            <span class="pkg-price">50K ARS/36 USDT</span>
+            <span class="pkg-price">50K ARS / 36 USDT</span>
         </div>
-        <div class="pkg-item" onclick="selectPkg('Licencia Lifetime', '300', this)">
+        <div class="pkg-item" onclick="selectPkg('Licencia Lifetime', '107', this)">
             <span class="pkg-name">PAGO UNICO</span>
-            <span class="pkg-price">150K ARS/107 USDT</span>
+            <span class="pkg-price">150K ARS / 107 USDT</span>
         </div>
     </div>
 
@@ -222,7 +239,7 @@
       </div>
       <img src="qr.jpg" alt="QR de Pago" class="qr-img">
       <div class="crypto-container">
-        <label style="font-size: 0.7rem; font-weight: 800;">BILLETERA USDT</label>
+        <label style="font-size: 0.7rem; font-weight: 800;">BILLETERA USDT (TRC20)</label>
         <div class="address-box">
           <span class="address-text" id="walletAddr">TKnfinsu3UxWd87RiW9uHL9EVBrU5n5DJQ</span>
           <img src="https://img.icons8.com/material-outlined/24/ffffff/copy.png" class="copy-icon" onclick="copyWallet('walletAddr')">
